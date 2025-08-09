@@ -24,17 +24,32 @@ def load_model() -> None:
     if not MODEL_PATH.exists():
         _model = None
         return
-    # Kiến trúc cần khớp với script train (MobileNetV3 Small)
-    from torchvision.models import mobilenet_v3_small, MobileNet_V3_Small_Weights
-
-    model = mobilenet_v3_small(weights=MobileNet_V3_Small_Weights.DEFAULT)
-    num_features = model.classifier[3].in_features
-    model.classifier[3] = torch.nn.Linear(num_features, len(_labels) if _labels else 1000)
+    # Cố gắng nạp checkpoint với MobileNetV3 Large trước; nếu không khớp, fallback sang Small
+    from torchvision.models import (
+        mobilenet_v3_large,
+        MobileNet_V3_Large_Weights,
+        mobilenet_v3_small,
+        MobileNet_V3_Small_Weights,
+    )
 
     state = torch.load(MODEL_PATH, map_location="cpu")
-    model.load_state_dict(state)
-    model.eval().to(_device)
-    _model = model
+    last_err: Exception | None = None
+    for variant in ("large", "small"):
+        try:
+            if variant == "large":
+                model = mobilenet_v3_large(weights=MobileNet_V3_Large_Weights.DEFAULT)
+            else:
+                model = mobilenet_v3_small(weights=MobileNet_V3_Small_Weights.DEFAULT)
+            num_features = model.classifier[3].in_features
+            model.classifier[3] = torch.nn.Linear(num_features, len(_labels) if _labels else 1000)
+            model.load_state_dict(state)
+            model.eval().to(_device)
+            _model = model
+            return
+        except Exception as e:
+            last_err = e
+            continue
+    raise RuntimeError(f"Không nạp được mô hình từ {MODEL_PATH}: {last_err}")
 
 
 def ensure_loaded() -> None:

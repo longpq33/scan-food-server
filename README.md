@@ -36,21 +36,19 @@ PYTHONPATH=. uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 ## Cấu trúc dataset (ImageFolder)
 ```
-server/datasets/vn_food/
+server/datasets/
   train/
-    pho_bo/
-      ... ảnh *.jpg|*.png
+    bia_333/
+    bia_tiger/
     bun_cha/
-      ...
     goi_cuon/
-      ...
+    pho_bo/
   val/
-    pho_bo/
-      ...
+    bia_333/
+    bia_tiger/
     bun_cha/
-      ...
     goi_cuon/
-      ...
+    pho_bo/
 ```
 Gợi ý: ≥ 50–100 ảnh/lớp để đạt độ chính xác ổn định.
 
@@ -79,7 +77,7 @@ curl -X POST http://localhost:8000/predict \
 - Body JSON:
 ```json
 {
-  "dataset_dir": "/absolute/path/to/server/datasets/vn_food",
+  "dataset_dir": "/absolute/path/to/server/datasets",
   "num_epochs": 10,
   "batch_size": 16,
   "learning_rate": 0.0005
@@ -91,7 +89,7 @@ curl -X POST http://localhost:8000/predict \
 curl -X POST http://localhost:8000/train \
   -H 'Content-Type: application/json' \
   -d '{
-    "dataset_dir": "/Users/<you>/scan-food/server/datasets/vn_food",
+    "dataset_dir": "/Users/<you>/scan-food/server/datasets",
     "num_epochs": 10,
     "batch_size": 16,
     "learning_rate": 0.0005
@@ -101,7 +99,7 @@ curl -X POST http://localhost:8000/train \
 ## Huấn luyện nhanh (chạy trực tiếp bằng Python)
 ```bash
 source .venv/bin/activate
-python -c "from app.training.train import train_model; train_model(dataset_dir='datasets/vn_food', num_epochs=10, batch_size=16, learning_rate=5e-4)"
+python -c "from app.training.train import train_model; train_model(dataset_dir='datasets', num_epochs=10, batch_size=16, learning_rate=5e-4)"
 ```
 
 ## Gợi ý nâng cao độ chính xác

@@ -2,6 +2,3 @@
 __pycache__/
 *.pyc
 .DS_Store
-models/
-datasets/
-server.log
